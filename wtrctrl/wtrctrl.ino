@@ -3,16 +3,17 @@
 #define BLYNK_AUTH_TOKEN "PRUqyzguLZ8Y1olTZBAfRtMihLyI52ZF"
 
 // Comment this out to disable prints and save space
-#define BLYNK_PRINT Serial
+//#define BLYNK_PRINT Serial
 
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
-
+#define BLYNK_FIRMWARE_VERSION        "0.1.2"
 
 const int ledPin =  5; // the LED pin number connected
 char auth[] = BLYNK_AUTH_TOKEN;
-double counter = 0;
+int powerPin;
+int waterPin;
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
@@ -27,26 +28,23 @@ int virtual_pin_value = param.asInt();
   if(param.asInt() == 1)
   {
     // execute this code if the switch widget is now ON
-    digitalWrite(5,LOW);  // Set digital pin  HIGH
-    counter = 0; 
-     Blynk.virtualWrite(V3, counter); 
+    digitalWrite(5,LOW);  // Set digital pin  HIGH    
   }
   else
   {
     // execute this code if the switch widget is now OFF
-    digitalWrite(5,HIGH);  // Set digital pin LOW   
-        
+    digitalWrite(5,HIGH);  // Set digital pin LOW        
   }
 }
-BLYNK_WRITE(V3) // Executes when the value of virtual pin 1 changes
+
+BLYNK_WRITE(V3) // Executes when the value of virtual pin 3 changes
 {
 int virtual_pin_value = param.asInt();  
   if(param.asInt() == 1)
   {
     // execute this code if the switch widget is now ON
     digitalWrite(4,LOW);  // Set digital pin  HIGH
-    counter = 0; 
-     Blynk.virtualWrite(V3, counter); 
+    
   }
   else
   {
@@ -57,10 +55,7 @@ int virtual_pin_value = param.asInt();
 }
 void myTimerEvent()
 {
-  if (digitalRead(5)==0){
-    counter+=1;
-    Blynk.virtualWrite(V3, counter/60);       
-  }
+  Blynk.virtualWrite(V3, waterPin);
   Blynk.virtualWrite(V2, millis() /1000 );
 }
 
@@ -82,7 +77,7 @@ void setup()
 }
 void loop()
 {
-  
+  waterPin = touchRead(13);
   Blynk.run();
   timer.run();
   // You can inject your own code or combine it with other sketches.
